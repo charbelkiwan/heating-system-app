@@ -6,8 +6,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OrderController;
 
-Route::post('login', [SessionController::class, 'login'])->middleware(['guest', 'recaptcha', 'throttle:10,3']);
-Route::post('signup', [SessionController::class, 'signup'])->middleware(['guest', 'recaptcha', 'throttle:10,3']);
+Route::post('login', [SessionController::class, 'login'])->middleware(['throttle:10,3']);
+Route::post('signup', [SessionController::class, 'signup'])->middleware(['throttle:10,3']);
 
 Route::post('logout', [SessionController::class, 'logout'])->middleware('auth:sanctum');
 

@@ -22,7 +22,6 @@ class SessionController extends Controller
             'password' => 'required|string|min:6',
             'role' => 'required|in:seller,buyer',
         ]);
-
         $user = User::create([
             'first_name' => $request->input('first_name'),
             'last_name' => $request->input('last_name'),

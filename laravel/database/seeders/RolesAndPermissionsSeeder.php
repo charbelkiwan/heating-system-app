@@ -19,12 +19,13 @@ class RolesAndPermissionsSeeder extends Seeder
         $buyerRole = Role::create(['name' => 'buyer']);
         
         // Create permissions
+        $manageUsersPermission = Permission::create(['name' => 'manage users']);
         $editProductsPermission = Permission::create(['name' => 'edit products']);
         $manageOrdersPermission = Permission::create(['name' => 'manage orders']);
         $createOrdersPermission = Permission::create(['name' => 'create orders']);
         
         // Assign permissions to roles
-        $adminRole->givePermissionTo($editProductsPermission, $manageOrdersPermission);
+        $adminRole->givePermissionTo($manageUsersPermission, $editProductsPermission, $manageOrdersPermission);
         $sellerRole->givePermissionTo($editProductsPermission);
         $buyerRole->givePermissionTo($createOrdersPermission);
     }

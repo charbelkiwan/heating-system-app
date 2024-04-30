@@ -75,12 +75,6 @@ class ProductController extends Controller
 
     public function show(Product $product)
     {
-        $user = Auth::user();
-
-        if ($user->id !== $product->seller_id || $user->role !== 'admin') {
-            return response()->json(['error' => 'You are not authorized to view this product.'], 403);
-        }
-
         return response(['success' => true, 'data' => $product]);
     }
 

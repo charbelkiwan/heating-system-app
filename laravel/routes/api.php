@@ -25,4 +25,5 @@ Route::group(['middleware' => ['auth:sanctum', 'role:seller']], function () {
 Route::group(['middleware' => ['auth:sanctum', 'role:buyer']], function () {
     Route::apiResource('orders', OrderController::class);
     Route::get('products', [ProductController::class, 'index']);
+    Route::get('products/{product}', [ProductController::class, 'show']);
 });

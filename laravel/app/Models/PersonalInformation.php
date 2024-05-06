@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class PersonalInformation extends Model
 {
+    protected $table = 'personal_informations';
+
     use HasFactory;
     protected $guarded = [];
 

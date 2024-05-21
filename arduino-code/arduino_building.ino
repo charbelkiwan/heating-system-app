@@ -22,7 +22,7 @@ void setup() {
   Serial.begin(9600);
   espSerial.begin(9600);
 
-  stepper.setSpeed(10); // Set the speed of the stepper motor
+  stepper.setSpeed(15); // Set the speed of the stepper motor
 }
 
 void loop() {
@@ -54,24 +54,26 @@ void loop() {
   distance = (duration / 2) / 29.1;
 
   // If an object is detected within 5 cm
-  if (distance < 5 && !checked) {
+  if (distance < 25 && !checked) {
     Serial.println("Object detected within 5 cm");
     checked = true;
-    espSerial.println("Stop Car");
+    espSerial.println("Stop the car");
     delay(2000);
   }
 
-  if (targetFloor.equals("1")) {
+  if (checked && targetFloor.equals("1")) {
     // Turn stepper motor - Option 1
     Serial.println("Going to the first floor");
+    delay(2000);
     stepper.step(4 * STEPS_PER_REV); // rotate 4 times
     delay(10000);
     stepper.step(-4 * STEPS_PER_REV);
     targetFloor = ""; // Reset targetFloor after operation
     espSerial.println("Start car");
-  } else if (targetFloor.equals("2")) {
+  } else if (checked && targetFloor.equals("2")) {
     // Turn stepper motor - Option 2
     Serial.println("Going to the second floor");
+    delay(2000);
     stepper.step(8 * STEPS_PER_REV); // rotate 8 times
     delay(10000);
     stepper.step(-8 * STEPS_PER_REV);

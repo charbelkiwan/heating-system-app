@@ -52,6 +52,11 @@ void loop() {
         Serial.println("Floor number received from server: 1");
         sendToArduino(2);
     }
+      else if (command.equals("Car arrived to containers\r")) {
+        Serial.println("Sending Car arrived to containers to server");
+        delay(1000);
+        sendToServer("/car_arrived_to_containers");
+    }
   }
 }
 void connectToWiFi() {

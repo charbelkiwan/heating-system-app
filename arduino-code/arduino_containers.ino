@@ -11,6 +11,8 @@ SoftwareSerial espSerial(10, 11); // RX, TX
 Servo servo1;
 Servo servo2;
 
+static bool checked = false;
+
 void startthecar() {
   Serial.println("Sending to esp: Start The car");
   espSerial.println("Start the car");
@@ -30,6 +32,9 @@ void setup() {
   pinMode(ECHO_PIN, INPUT);
   servo1.attach(SERVO1_PIN);
   servo2.attach(SERVO2_PIN);
+
+  servo1.write(0); // Initialize servos to 0 position
+  servo2.write(0); // Initialize servos to 0 position
 }
 
 void loop() {
@@ -49,8 +54,10 @@ void loop() {
   distance = duration * 0.034 / 2;
 
   // Check the distance and stop the car if an object is detected
-  if (distance < 15) {
+  if (distance < 25 && !checked) {
     Serial.println("Object detected!");
+    espSerial.println("Car arrived to containers");
+    checked = true;
     stopthecar();
   } else {
     // Continue with normal operation
@@ -63,12 +70,16 @@ void loop() {
         servo1.write(0); // Reset servo to initial position
         delay(100);
         startthecar();
+        delay(2000);
+        checked = false;
       } else if (input.equals("2\r")) {
         servo2.write(180);
         delay(5000); // Adjust the delay as needed
         servo2.write(0); // Reset servo to initial position
         delay(100);
         startthecar();
+        delay(2000);
+        checked = false;
       }
     }
   }

@@ -14,6 +14,21 @@ SoftwareSerial arduinoSerial(D2, D3);  // RX, TX
 WiFiClient client;
 ESP8266WebServer server(80);  // Initialize ESP8266WebServer on port 80
 
+void startServer();
+
+void connectToWiFi() {
+  Serial.println("Connecting to Wi-Fi");
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.print(".");
+  }
+
+  Serial.println("");
+  Serial.println("Connected to Wi-Fi");
+}
+
 void setup() {
   Serial.begin(9600);
   arduinoSerial.begin(9600);
@@ -22,7 +37,7 @@ void setup() {
   startServer();
 
   // Start mDNS with hostname "esp_containers"
-  if (!MDNS.begin("esp_containers")) {
+  if (!MDNS.begin("esp_building")) {
     Serial.println("Error setting up MDNS responder!");
   }
 }
@@ -35,11 +50,12 @@ void loop() {
     String command = arduinoSerial.readStringUntil('\n');
     // String command = arduinoSerial.readString();
     Serial.println(command);
-    if (command.equals("Start the car\r")) {
+    if (command.equals("Start car\r")) {
       Serial.println("Sending Start the car to server");
       delay(1000);
-      sendToServer("/start_car_forward");
-    } else if (command.equals("Stop the car\r")) {
+      sendToServer("/start_car_backward");
+    }
+    else if (command.equals("Stop the car\r")) {
       Serial.println("Sending Stop the car to server");
       delay(1000);
       sendToServer("/stop_car");
@@ -54,18 +70,7 @@ void loop() {
     }
   }
 }
-void connectToWiFi() {
-  Serial.println("Connecting to Wi-Fi");
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
-    Serial.print(".");
-  }
-
-  Serial.println("");
-  Serial.println("Connected to Wi-Fi");
-}
 
 void startServer() {
   Serial.println("Starting server");
@@ -80,6 +85,12 @@ void startServer() {
     } else {
       server.send(400, "text/plain", "Bad Request: Missing floor number");
     }
+  });
+
+  server.on("/car_arrived_to_containers", HTTP_POST, []() {
+    Serial.println("Getting from server /car_arrived_to_containers");
+    arduinoSerial.println("Car arrived to containers");
+    server.send(200, "text/plain", "Car arrived to containers send to esp building");
   });
 
   server.begin();  // Start the server

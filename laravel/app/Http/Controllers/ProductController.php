@@ -36,6 +36,10 @@ class ProductController extends Controller
     {
         $user = Auth::user();
 
+        if ($user->role !== 'seller') {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
         $request->validate([
             'name' => 'required|string',
             'description' => 'nullable|string',
@@ -45,14 +49,13 @@ class ProductController extends Controller
             'type' => 'nullable|in:Wood,Diesel',
         ]);
 
-        // Assign the authenticated user's ID as the seller ID
         $request['seller_id'] = $user->id;
 
-        // Create the product
         $product = Product::create($request->all());
 
         return response()->json(['success' => true, 'data' => $product], 201);
     }
+
 
     public function update(Request $request, Product $product)
     {

@@ -50,6 +50,7 @@ class OrderController extends Controller
             'quantity' => 'nullable|integer',
             'order_date' => 'nullable|date',
             'status' => 'nullable|in:pending,in-progress,completed',
+            'seller_id' => 'required|exists:users,id', // Add validation for seller_id
         ]);
 
         // Fetch the product to get its price
@@ -61,6 +62,7 @@ class OrderController extends Controller
         // Create the order with the calculated total price
         $order = Order::create([
             'user_id' => $userId,
+            'seller_id' => $request->input('seller_id'), // Set seller ID
             'product_id' => $request->input('product_id'),
             'quantity' => $request->input('quantity'),
             'price' => $totalPrice,
@@ -70,6 +72,8 @@ class OrderController extends Controller
 
         return response()->json(['success' => true, 'data' => $order]);
     }
+
+
 
     public function show(Order $order)
     {

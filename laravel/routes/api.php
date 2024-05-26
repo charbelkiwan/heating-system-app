@@ -7,6 +7,8 @@ use App\Http\Controllers\PersonalInformationController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OrderController;
 
+Route::middleware('auth:sanctum')->get('/me', [SessionController::class, 'me']);
+
 Route::post('login', [SessionController::class, 'login'])->middleware(['throttle:10,3']);
 Route::post('signup', [SessionController::class, 'signup'])->middleware(['throttle:10,3']);
 

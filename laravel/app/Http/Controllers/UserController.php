@@ -28,6 +28,7 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6',
             'role' => 'required|in:seller,buyer', // Adjust role options as needed
+            'location' => 'required|string',
         ]);
 
         $user = User::create([
@@ -35,7 +36,10 @@ class UserController extends Controller
             'last_name' => $request->input('last_name'),
             'email' => $request->input('email'),
             'password' => Hash::make($request->input('password')),
+            'location' => $request->input('location'),
         ]);
+
+        dd($request->all());
 
         // Assign role based on input
         $user->assignRole($request->input('role'));
@@ -56,6 +60,7 @@ class UserController extends Controller
             'email' => 'email|unique:users,email,' . $user->id,
             'password' => 'string|min:6',
             'role' => 'in:seller,buyer', // Adjust role options as needed
+            'location' => 'string',
         ]);
 
         $user->update([
@@ -63,6 +68,7 @@ class UserController extends Controller
             'last_name' => $request->input('last_name', $user->last_name),
             'email' => $request->input('email', $user->email),
             'password' => $request->filled('password') ? Hash::make($request->input('password')) : $user->password,
+            'location' => $request->input('location', $user->location),
         ]);
 
         // Update role if provided

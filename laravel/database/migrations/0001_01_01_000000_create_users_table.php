@@ -19,6 +19,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->enum('role', ['admin', 'seller', 'buyer'])->default('buyer');
+            $table->string('location')->nullable();
             $table->string('access_type')->default('0');
             $table->rememberToken();
             $table->timestamps();

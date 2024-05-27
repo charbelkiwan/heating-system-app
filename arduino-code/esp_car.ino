@@ -66,6 +66,15 @@ void startServer() {
   server.on("/stop_car", HTTP_POST, []() {
     Serial.println("Getting from server /stop_car");
     arduinoSerial.println("Stop car");
+
+    // Check if the request includes an open_servo parameter
+    if (server.hasArg("open_servo")) {
+      String openServo = server.arg("open_servo");
+      if (openServo.equals("true")) {
+        arduinoSerial.println("Open servo");
+      }
+    }
+
     server.send(200, "text/plain", "Car should be stopping");
   });
 

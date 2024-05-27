@@ -48,7 +48,6 @@ void loop() {
 
   if (arduinoSerial.available()) {
     String command = arduinoSerial.readStringUntil('\n');
-    // String command = arduinoSerial.readString();
     Serial.println(command);
     if (command.equals("Start car\r")) {
       Serial.println("Sending Start the car to server");
@@ -60,17 +59,21 @@ void loop() {
       delay(1000);
       sendToServer("/stop_car");
     }
-      else if (command.equals("1\r")) {
-        Serial.println("Floor number received from server: 1");
-        sendToArduino(1);
+    else if (command.equals("Stop the car and open servo\r")) {
+      Serial.println("Sending Stop the car and open servo to server");
+      delay(1000);
+      sendToServer("/stop_car", true);
     }
-      else if (command.equals("2\r")) {
-        Serial.println("Floor number received from server: 1");
-        sendToArduino(2);
+    else if (command.equals("1\r")) {
+      Serial.println("Floor number received from server: 1");
+      sendToArduino(1);
+    }
+    else if (command.equals("2\r")) {
+      Serial.println("Floor number received from server: 1");
+      sendToArduino(2);
     }
   }
 }
-
 
 void startServer() {
   Serial.println("Starting server");
@@ -96,7 +99,7 @@ void startServer() {
   server.begin();  // Start the server
 }
 
-void sendToServer(String message) {
+void sendToServer(String message, bool openServo = false) {
   HTTPClient http;
 
   // Construct the complete URL
@@ -105,9 +108,16 @@ void sendToServer(String message) {
   // Use the correct begin method
   http.begin(client, url);  // Pass the WiFiClient object and the URL
 
-  http.addHeader("Content-Type", "text/plain");
+  // Add necessary headers
+  http.addHeader("Content-Type", "application/x-www-form-urlencoded");
 
-  int httpResponseCode = http.POST(message);
+  // Prepare POST data
+  String postData;
+  if (openServo) {
+    postData = "open_servo=true";
+  }
+
+  int httpResponseCode = http.POST(postData);
 
   if (httpResponseCode > 0) {
     Serial.printf("[HTTP] POST request sent, response code: %d\n", httpResponseCode);

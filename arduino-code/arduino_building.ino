@@ -1,12 +1,16 @@
 #include <Stepper.h>
 #include <SoftwareSerial.h>
 
-#define TRIG_PIN 9
-#define ECHO_PIN 10
 #define STEP_PIN1 2
 #define STEP_PIN2 3
 #define STEP_PIN3 4
 #define STEP_PIN4 5
+#define TRIG_PIN 8
+#define ECHO_PIN 9
+#define RED_LED1_PIN  10
+#define GREEN_LED1_PIN  11
+#define RED_LED2_PIN  12
+#define GREEN_LED2_PIN  13
 
 #define STEPS_PER_REV 2048
 
@@ -22,7 +26,12 @@ void setup() {
   Serial.begin(9600);
   espSerial.begin(9600);
 
-  stepper.setSpeed(10); // Set the speed of the stepper motor
+  pinMode(RED_LED1_PIN, OUTPUT);
+  pinMode(GREEN_LED1_PIN, OUTPUT);
+  pinMode(RED_LED2_PIN, OUTPUT);
+  pinMode(GREEN_LED2_PIN, OUTPUT);
+
+  stepper.setSpeed(15); // Set the speed of the stepper motor
 }
 
 void loop() {
@@ -54,27 +63,37 @@ void loop() {
   distance = (duration / 2) / 29.1;
 
   // If an object is detected within 5 cm
-  if (distance < 5 && !checked) {
+  if (distance < 25 && !checked) {
     Serial.println("Object detected within 5 cm");
     checked = true;
-    espSerial.println("Stop Car");
-    delay(2000);
+    espSerial.println("Stop the car and open servo");
+    delay(5000);
   }
 
-  if (targetFloor.equals("1")) {
+  if (checked && targetFloor.equals("1")) {
     // Turn stepper motor - Option 1
     Serial.println("Going to the first floor");
-    stepper.step(4 * STEPS_PER_REV); // rotate 4 times
+    digitalWrite(GREEN_LED1_PIN, HIGH); // Turn on green LED 1
+    digitalWrite(RED_LED1_PIN, LOW); // Turn off red LED 1
+    delay(2000);
+    stepper.step(4 * STEPS_PER_REV); // Rotate 4 times
     delay(10000);
     stepper.step(-4 * STEPS_PER_REV);
+    digitalWrite(GREEN_LED1_PIN, LOW); // Turn off green LED 1
+    digitalWrite(RED_LED1_PIN, HIGH); // Turn on red LED 1
     targetFloor = ""; // Reset targetFloor after operation
     espSerial.println("Start car");
-  } else if (targetFloor.equals("2")) {
+  } else if (checked && targetFloor.equals("2")) {
     // Turn stepper motor - Option 2
     Serial.println("Going to the second floor");
-    stepper.step(8 * STEPS_PER_REV); // rotate 8 times
+    digitalWrite(GREEN_LED2_PIN, HIGH); // Turn on green LED 2
+    digitalWrite(RED_LED2_PIN, LOW); // Turn off red LED 2
+    delay(2000);
+    stepper.step(8 * STEPS_PER_REV); // Rotate 8 times
     delay(10000);
     stepper.step(-8 * STEPS_PER_REV);
+    digitalWrite(GREEN_LED2_PIN, LOW); // Turn off green LED 2
+    digitalWrite(RED_LED2_PIN, HIGH); // Turn on red LED 2
     targetFloor = ""; // Reset targetFloor after operation
     espSerial.println("Start car");
   }

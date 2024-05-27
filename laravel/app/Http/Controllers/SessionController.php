@@ -21,6 +21,7 @@ class SessionController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6',
             'role' => 'required|in:seller,buyer',
+            'location' => 'required|string',
         ]);
         $user = User::create([
             'first_name' => $request->input('first_name'),
@@ -28,6 +29,7 @@ class SessionController extends Controller
             'email' => $request->input('email'),
             'password' => Hash::make($request->input('password')),
             'role' => $request->input('role'),
+            'location' => $request->input('location'),
         ]);
 
         if ($user->role === 'seller') {

@@ -30,6 +30,7 @@ class DatabaseSeeder extends Seeder
             'role' => 'admin',
             'password' => bcrypt('miniproject@2024!'),
             'access_type' => '100',
+            'location' => "Zahle",
         ]);
 
         $user->assignRole('admin');

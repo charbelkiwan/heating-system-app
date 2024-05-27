@@ -83,7 +83,7 @@ if (distance < 25 && !checked) {
         digitalWrite(GREEN_LED1_PIN, LOW); // Turn off green LED 1
         digitalWrite(RED_LED1_PIN, HIGH); // Turn on red LED 1
         startthecar();
-        delay(2000);
+        delay(5000);
         checked = false;
       } else if (input.equals("2\r")) {
         digitalWrite(GREEN_LED2_PIN, HIGH); // Turn on green LED 2
@@ -95,7 +95,7 @@ if (distance < 25 && !checked) {
         digitalWrite(GREEN_LED2_PIN, LOW); // Turn off green LED 2
         digitalWrite(RED_LED2_PIN, HIGH); // Turn on red LED 2
         startthecar();
-        delay(2000);
+        delay(5000);
         checked = false;
       }
     }

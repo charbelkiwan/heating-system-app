@@ -14,20 +14,11 @@ class ProductController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->role === 'admin' || $user->role === 'buyer') {
-            $products = QueryBuilder::for(Product::class)
-                ->allowedFilters('type')
-                ->allowedSorts('id', 'name', 'location', 'price', 'quantity', 'type', 'created_at', 'updated_at')
-                ->defaultSort('id')
-                ->paginate(10);
-        } else {
-            $products = QueryBuilder::for(Product::class)
-                ->where('seller_id', $user->id)
-                ->allowedFilters('type')
-                ->allowedSorts('id', 'name', 'location', 'price', 'quantity', 'type', 'created_at', 'updated_at')
-                ->defaultSort('id')
-                ->paginate(10);
-        }
+        $products = QueryBuilder::for(Product::class)
+            ->allowedFilters('type')
+            ->allowedSorts('id', 'name', 'location', 'price', 'quantity', 'type', 'created_at', 'updated_at')
+            ->defaultSort('id')
+            ->paginate(10);
 
         return response()->json(['success' => true, 'data' => $products]);
     }
@@ -35,6 +26,10 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
+
+        if ($user->role !== 'seller') {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
 
         $request->validate([
             'name' => 'required|string',
@@ -45,14 +40,13 @@ class ProductController extends Controller
             'type' => 'nullable|in:Wood,Diesel',
         ]);
 
-        // Assign the authenticated user's ID as the seller ID
         $request['seller_id'] = $user->id;
 
-        // Create the product
         $product = Product::create($request->all());
 
         return response()->json(['success' => true, 'data' => $product], 201);
     }
+
 
     public function update(Request $request, Product $product)
     {
@@ -89,5 +83,37 @@ class ProductController extends Controller
         $product->delete();
         return response(['data' => $product], Response::HTTP_NO_CONTENT);
     }
+
+    public function getNearbyProducts(Request $request)
+    {
+        // Assuming the user is authenticated and we can get their ID from the request
+        $user = $request->user();
+
+        // Fetch the user's location
+        $userLocation = $user->location;
+
+        // Fetch products matching the user's location
+        $products = Product::where('location', $userLocation)->paginate(10); // Adjust pagination as needed
+
+        return response()->json([
+            'success' => true,
+            'data' => $products
+        ]);
+    }
+
+    // app/Http/Controllers/ProductController.php
+
+    public function getProductsByType(Request $request)
+    {
+        $type = $request->query('type');
+        $products = Product::where('type', $type)->paginate(10);
+
+        return response()->json([
+            'success' => true,
+            'data' => $products,
+        ]);
+    }
+
+
 }
 

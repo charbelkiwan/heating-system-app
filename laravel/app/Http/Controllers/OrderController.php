@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 use Spatie\QueryBuilder\QueryBuilder;
-use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
 {
@@ -56,15 +56,12 @@ class OrderController extends Controller
             'quantity' => 'nullable|integer',
             'order_date' => 'nullable|date',
             'status' => 'nullable|in:pending,in-progress,completed',
+            'seller_id' => 'required|exists:users,id',
         ]);
 
-        // Fetch the product to get its price
         $product = Product::findOrFail($request->input('product_id'));
-
-        // Calculate total price based on product price and quantity
         $totalPrice = $product->price * $request->input('quantity');
 
-        // Create the order with the calculated total price
         $order = Order::create([
             'user_id' => $userId,
             'product_id' => $request->input('product_id'),
@@ -83,7 +80,7 @@ class OrderController extends Controller
         $userId = Auth::id();
         $userRole = Auth::user()->role;
 
-        if ($userRole !== 'admin' || $order->user_id !== $userId) {
+        if ($userRole !== 'admin' && $order->user_id !== $userId) {
             return response()->json(['error' => 'You are not authorized to view this order.'], 403);
         }
 
@@ -99,32 +96,47 @@ class OrderController extends Controller
             'status' => 'in:pending,in-progress,completed',
         ]);
 
-        // Check if the user is authorized to update the order
         $userId = Auth::id();
-        if ($userId !== $order->user_id || Auth::user()->role !== 'admin') {
+        if ($userId !== $order->user_id && Auth::user()->role !== 'admin') {
             return response()->json(['error' => 'You are not authorized to update this order.'], 403);
         }
 
-        // Update the order with the provided data
         $order->update($request->all());
-
-        // Calculate the new total price based on the updated quantity
         $product = $order->product;
         $newTotalPrice = $product->price * $order->quantity;
-
-        // Update the order's price with the new total price
         $order->update(['price' => $newTotalPrice]);
 
         return response()->json(['success' => true, 'data' => $order]);
     }
 
+    public function updateStatus(Request $request, Order $order)
+    {
+        $request->validate([
+            'status' => 'required|in:pending,in-progress,completed',
+        ]);
+
+        $userId = Auth::id();
+        $userRole = Auth::user()->role;
+
+        if ($userRole === 'buyer' && $order->user_id !== $userId) {
+            return response()->json(['error' => 'You are not authorized to update this order status.'], 403);
+        }
+
+        if ($userRole === 'seller' && $order->seller_id !== $userId) {
+            return response()->json(['error' => 'You are not authorized to update this order status.'], 403);
+        }
+
+        $order->status = $request->input('status');
+        $order->save();
+
+        return response()->json(['success' => true, 'data' => $order]);
+    }
 
     public function destroy(Order $order)
     {
         $userId = Auth::id();
         $userRole = Auth::user()->role;
 
-        // Check if the user is the buyer of the order or is an admin
         if ($userRole !== 'admin' && $order->user_id !== $userId) {
             return response()->json(['error' => 'You are not authorized to delete this order.'], 403);
         }
@@ -133,4 +145,3 @@ class OrderController extends Controller
         return response()->json(['success' => true, 'data' => $order], Response::HTTP_NO_CONTENT);
     }
 }
-

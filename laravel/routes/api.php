@@ -7,6 +7,13 @@ use App\Http\Controllers\PersonalInformationController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OrderController;
 
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/me', [SessionController::class, 'me']);
+    Route::patch('/me', [SessionController::class, 'updateMe']);
+    Route::get('/products/nearby', [ProductController::class, 'getNearbyProducts']);
+    Route::get('/products/by-type', [ProductController::class, 'getProductsByType']);
+});
+
 Route::post('login', [SessionController::class, 'login'])->middleware(['throttle:10,3']);
 Route::post('signup', [SessionController::class, 'signup'])->middleware(['throttle:10,3']);
 
@@ -17,16 +24,23 @@ Route::group(['middleware' => ['auth:sanctum', 'role:admin']], function () {
     Route::apiResource('personal-informations', PersonalInformationController::class)->only(['index', 'show', 'destroy']);
     Route::apiResource('products', ProductController::class);
     Route::apiResource('orders', OrderController::class)->except(['store']);
+    Route::patch('orders/{order}/status', [OrderController::class, 'updateStatus']);
 });
 
 Route::group(['middleware' => ['auth:sanctum', 'role:seller']], function () {
     Route::apiResource('personal-informations', PersonalInformationController::class)->except(['index']);
     Route::apiResource('products', ProductController::class);
     Route::get('orders', [OrderController::class, 'index']);
+    Route::patch('orders/{order}/status', [OrderController::class, 'updateStatus']);
+    Route::get('/products/by-type', [ProductController::class, 'getProductsByType']);
 });
 
 Route::group(['middleware' => ['auth:sanctum', 'role:buyer']], function () {
     Route::apiResource('personal-informations', PersonalInformationController::class)->except(['index']);
-    Route::apiResource('orders', OrderController::class);
+    Route::apiResource('orders', OrderController::class)->except(['update', 'destroy']);
+    Route::post('/orders', [OrderController::class, 'store']);
     Route::apiResource('products', ProductController::class)->only(['index', 'show']);
+    Route::patch('orders/{order}/status', [OrderController::class, 'updateStatus']);
+    Route::get('/products/by-type', [ProductController::class, 'getProductsByType']);
 });
+

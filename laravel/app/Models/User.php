@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -24,6 +23,7 @@ class User extends Authenticatable
         'role',
         'email',
         'password',
+        'location', // Added location here
     ];
 
     /**
@@ -46,8 +46,10 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'location' => 'string', // Added location here if casting is needed
         ];
     }
+
     public function personalInformation()
     {
         return $this->hasOne(PersonalInformation::class);

@@ -22,12 +22,15 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
+        \Log::info('Incoming request data:', $request->all()); // Add this line
+
         $request->validate([
             'first_name' => 'required|string',
             'last_name' => 'required|string',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6',
-            'role' => 'required|in:seller,buyer', // Adjust role options as needed
+            'role' => 'required|in:seller,buyer',
+            'location' => 'required|string',
         ]);
 
         $user = User::create([
@@ -35,13 +38,15 @@ class UserController extends Controller
             'last_name' => $request->input('last_name'),
             'email' => $request->input('email'),
             'password' => Hash::make($request->input('password')),
+            'role' => $request->input('role'),
+            'location' => $request->input('location'),
         ]);
 
-        // Assign role based on input
         $user->assignRole($request->input('role'));
 
         return response()->json($user, 201);
     }
+
 
     public function show(User $user)
     {
@@ -56,6 +61,7 @@ class UserController extends Controller
             'email' => 'email|unique:users,email,' . $user->id,
             'password' => 'string|min:6',
             'role' => 'in:seller,buyer', // Adjust role options as needed
+            'location' => 'string', // Add validation for location
         ]);
 
         $user->update([
@@ -63,6 +69,8 @@ class UserController extends Controller
             'last_name' => $request->input('last_name', $user->last_name),
             'email' => $request->input('email', $user->email),
             'password' => $request->filled('password') ? Hash::make($request->input('password')) : $user->password,
+            'role' => $request->input('role', $user->role),
+            'location' => $request->input('location', $user->location), // Add this line
         ]);
 
         // Update role if provided
@@ -79,4 +87,5 @@ class UserController extends Controller
         return response()->json(null, 204);
     }
 }
+
 

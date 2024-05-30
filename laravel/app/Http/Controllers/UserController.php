@@ -22,7 +22,7 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        \Log::info('Incoming request data:', $request->all()); // Add this line
+        //\Log::info('Incoming request data:', $request->all()); // Add this line
 
         $request->validate([
             'first_name' => 'required|string',

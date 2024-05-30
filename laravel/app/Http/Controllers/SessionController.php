@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Log;
 
 class SessionController extends Controller
 {
@@ -41,11 +42,8 @@ class SessionController extends Controller
         }
 
         // Generate token
-        $token = $user->createToken('auth_token')->plainTextToken;
-
         return response()->json([
             'user' => $user,
-            'token' => $token,
             'message' => 'User registered successfully',
         ], 201);
     }
@@ -66,11 +64,28 @@ class SessionController extends Controller
             $user = Auth::user();
             $token = $user->createToken('AuthToken')->plainTextToken;
 
-            return response()->json(['token' => $token]);
+            // Ensure roles are loaded
+            $user->load('roles');
+            // Check role assignment in login method
+            Log::info('User roles', $user->getRoleNames()->toArray());
+
+
+            return response()->json([
+                'token' => $token,
+                'user' => [
+                    'id' => $user->id,
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
+                    'email' => $user->email,
+                    'role' => $user->getRoleNames()->first(),  // Assuming a user has one role
+                    'location' => $user->location,
+                ]
+            ]);
         }
 
         throw ValidationException::withMessages(['email' => 'Invalid credentials']);
     }
+
 
     /**
      * Log out the authenticated user.

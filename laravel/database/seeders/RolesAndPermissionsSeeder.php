@@ -19,14 +19,18 @@ class RolesAndPermissionsSeeder extends Seeder
         $buyerRole = Role::create(['name' => 'buyer']);
         
         // Create permissions
-        $manageUsersPermission = Permission::create(['name' => 'manage users']);
-        $editProductsPermission = Permission::create(['name' => 'edit products']);
-        $manageOrdersPermission = Permission::create(['name' => 'manage orders']);
-        $createOrdersPermission = Permission::create(['name' => 'create orders']);
+        $manageUsers = Permission::create(['name' => 'manage users']);
+        $manageInfo = Permission::create(['name' => 'manage info']);
+        $getInfo = Permission::create(['name' => 'get info']);
+        $getOrders = Permission::create(['name' => 'get orders']);
+        $manageOrders = Permission::create(['name' => 'manage orders']);
+        $getProducts = Permission::create(['name' => 'get products']);
+        $manageProducts = Permission::create(['name' => 'manage products']);
+
         
         // Assign permissions to roles
-        $adminRole->givePermissionTo($manageUsersPermission, $editProductsPermission, $manageOrdersPermission);
-        $sellerRole->givePermissionTo($editProductsPermission);
-        $buyerRole->givePermissionTo($createOrdersPermission);
+        $adminRole->givePermissionTo($manageUsers, $getInfo, $getOrders, $getProducts);
+        $sellerRole->givePermissionTo($manageInfo, $manageProducts, $manageOrders);
+        $buyerRole->givePermissionTo($manageOrders, $manageInfo, $manageProducts);
     }
 }

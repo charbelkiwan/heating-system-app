@@ -89,4 +89,27 @@ class SessionController extends Controller
     {
         return response()->json($request->user());
     }
+
+    public function updateMe(Request $request)
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'first_name' => 'string',
+            'last_name' => 'string',
+            'email' => 'email|unique:users,email,' . $user->id,
+            'location' => 'string',
+            'password' => 'nullable|string|min:6',
+        ]);
+
+        $user->update([
+            'first_name' => $request->input('first_name', $user->first_name),
+            'last_name' => $request->input('last_name', $user->last_name),
+            'email' => $request->input('email', $user->email),
+            'location' => $request->input('location', $user->location),
+            'password' => $request->filled('password') ? Hash::make($request->input('password')) : $user->password,
+        ]);
+
+        return response()->json($user);
+    }
 }

@@ -12,6 +12,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [SessionController::class, 'me']);
     Route::patch('/me', [SessionController::class, 'updateMe']);
     Route::get('/products/nearby', [ProductController::class, 'getNearbyProducts']);
+    Route::get('/products/by-type', [ProductController::class, 'getProductsByType']);
 });
 
 // Public routes

@@ -34,6 +34,8 @@ void setup() {
   Serial.begin(9600);
   arduinoSerial.begin(9600);
 
+  pinMode(LED_BUILTIN, OUTPUT);
+
   connectToWiFi();
   startServer();
 
@@ -48,6 +50,8 @@ void setup() {
 void loop() {
   MDNS.update();
   server.handleClient();  // Handle incoming HTTP requests
+
+  digitalWrite(LED_BUILTIN, LOW);  // turn the LED on (HIGH is the voltage level)
 
   if (arduinoSerial.available()) {
     String command = arduinoSerial.readStringUntil('\n');

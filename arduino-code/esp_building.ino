@@ -15,6 +15,7 @@ WiFiClient client;
 ESP8266WebServer server(80);  // Initialize ESP8266WebServer on port 80
 
 void startServer();
+void sendToServer(String message, bool openServo = false);
 
 void connectToWiFi() {
   Serial.println("Connecting to Wi-Fi");
@@ -39,6 +40,8 @@ void setup() {
   // Start mDNS with hostname "esp_containers"
   if (!MDNS.begin("esp_building")) {
     Serial.println("Error setting up MDNS responder!");
+  } else {
+    Serial.println("MDNS responder started");
   }
 }
 
@@ -48,28 +51,26 @@ void loop() {
 
   if (arduinoSerial.available()) {
     String command = arduinoSerial.readStringUntil('\n');
+    command.trim();  // Remove newline characters
     Serial.println(command);
+
     if (command.equals("Start car\r")) {
       Serial.println("Sending Start the car to server");
       delay(1000);
       sendToServer("/start_car_backward");
-    }
-    else if (command.equals("Stop the car\r")) {
+    } else if (command.equals("Stop the car\r")) {
       Serial.println("Sending Stop the car to server");
       delay(1000);
       sendToServer("/stop_car");
-    }
-    else if (command.equals("Stop the car and open servo\r")) {
+    } else if (command.equals("Stop the car and open servo\r")) {
       Serial.println("Sending Stop the car and open servo to server");
       delay(1000);
       sendToServer("/stop_car", true);
-    }
-    else if (command.equals("1\r")) {
+    } else if (command.equals("1\r")) {
       Serial.println("Floor number received from server: 1");
       sendToArduino(1);
-    }
-    else if (command.equals("2\r")) {
-      Serial.println("Floor number received from server: 1");
+    } else if (command.equals("2\r")) {
+      Serial.println("Floor number received from server: 2");
       sendToArduino(2);
     }
   }
@@ -99,7 +100,7 @@ void startServer() {
   server.begin();  // Start the server
 }
 
-void sendToServer(String message, bool openServo = false) {
+void sendToServer(String message, bool openServo) {
   HTTPClient http;
 
   // Construct the complete URL
@@ -112,10 +113,7 @@ void sendToServer(String message, bool openServo = false) {
   http.addHeader("Content-Type", "application/x-www-form-urlencoded");
 
   // Prepare POST data
-  String postData;
-  if (openServo) {
-    postData = "open_servo=true";
-  }
+  String postData = openServo ? "open_servo=true" : "";
 
   int httpResponseCode = http.POST(postData);
 

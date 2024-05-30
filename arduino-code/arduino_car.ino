@@ -1,19 +1,16 @@
 #include <Servo.h>
 #include <SoftwareSerial.h>
 
-#define MOTOR1_PIN1 2 
+#define MOTOR1_PIN1 2
 #define MOTOR1_PIN2 3
 #define MOTOR2_PIN1 4
 #define MOTOR2_PIN2 5
 #define SERVO_PIN 6 // Add the pin for the servo motor
-#define WHITE_LED1_PIN  7
-#define WHITE_LED2_PIN  8
-#define RED_LED1_PIN    9
-#define RED_LED2_PIN    10
 
+#define RED_LED1_PIN 9
 
 SoftwareSerial espSerial(11, 12);
-Servo myServo;  // Create a servo object
+Servo myServo; // Create a servo object
 
 void setup()
 {
@@ -25,13 +22,12 @@ void setup()
   espSerial.begin(9600);
   Serial.begin(9600);
 
-  pinMode(WHITE_LED1_PIN, OUTPUT);
-  pinMode(WHITE_LED2_PIN, OUTPUT);
   pinMode(RED_LED1_PIN, OUTPUT);
-  pinMode(RED_LED2_PIN, OUTPUT);
 
-  myServo.attach(SERVO_PIN);  // Attach the servo to the specified pin
-  myServo.write(0);           // Set the servo to 0 degrees by default
+  myServo.attach(SERVO_PIN); // Attach the servo to the specified pin
+  myServo.write(0);          // Set the servo to 0 degrees by default
+
+  digitalWrite(RED_LED1_PIN, HIGH); // Turn on red LEDs
 }
 
 void loop()
@@ -66,10 +62,7 @@ void startCarForward()
   digitalWrite(MOTOR2_PIN1, HIGH);
   digitalWrite(MOTOR2_PIN2, LOW);
 
-  digitalWrite(WHITE_LED1_PIN, HIGH); // Turn on white LEDs
-  digitalWrite(WHITE_LED2_PIN, HIGH);
-  digitalWrite(RED_LED1_PIN, LOW);    // Turn off red LEDs
-  digitalWrite(RED_LED2_PIN, LOW);
+  digitalWrite(RED_LED1_PIN, LOW); // Turn off red LEDs
 }
 
 void startCarBackward()
@@ -79,10 +72,7 @@ void startCarBackward()
   digitalWrite(MOTOR2_PIN1, LOW);
   digitalWrite(MOTOR2_PIN2, HIGH);
 
-  digitalWrite(WHITE_LED1_PIN, HIGH); // Turn on white LEDs
-  digitalWrite(WHITE_LED2_PIN, HIGH);
-  digitalWrite(RED_LED1_PIN, LOW);    // Turn off red LEDs
-  digitalWrite(RED_LED2_PIN, LOW);
+  digitalWrite(RED_LED1_PIN, LOW); // Turn off red LEDs
 }
 
 void stopTheCar()
@@ -92,16 +82,18 @@ void stopTheCar()
   digitalWrite(MOTOR2_PIN1, LOW);
   digitalWrite(MOTOR2_PIN2, LOW);
 
-  digitalWrite(WHITE_LED1_PIN, LOW); // Turn off white LEDs
-  digitalWrite(WHITE_LED2_PIN, LOW);
-  digitalWrite(RED_LED1_PIN, HIGH);  // Turn on red LEDs
-  digitalWrite(RED_LED2_PIN, HIGH);
+  digitalWrite(RED_LED1_PIN, HIGH); // Turn on red LEDs
 }
 
 void openServo()
 {
   delay(3000);
-  myServo.write(180);  // Rotate the servo to 180 degrees
-  delay(2000);         // Example delay, adjust as needed
-  myServo.write(0);    // Rotate the servo back to 0 degrees
+  for (int i = 1; i < 51; i++)
+  {
+    myServo.write(i); // Rotate the servo to 180 degrees
+    delay(50);
+  }
+  myServo.write(70); // Rotate the servo to 180 degrees
+  delay(3000);       // Example delay, adjust as needed
+  myServo.write(0);  // Rotate the servo back to 0 degrees
 }

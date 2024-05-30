@@ -16,27 +16,33 @@ class OrderController extends Controller
         $userId = Auth::id();
         $userRole = Auth::user()->role;
         
+        $query = QueryBuilder::for(Order::class)
+            ->allowedFilters('status')
+            ->allowedSorts('id', 'user_id', 'product_id', 'quantity', 'price', 'order_date', 'status', 'created_at', 'updated_at')
+            ->defaultSort('id')
+            ->with(['product']); // Eager load product and seller with only their names
+
         if ($userRole === 'admin') {
-            $orders = QueryBuilder::for(Order::class)
-                ->allowedFilters('status')
-                ->allowedSorts('id', 'user_id', 'product_id', 'quantity', 'price', 'order_date', 'status', 'created_at', 'updated_at')
-                ->defaultSort('id')
-                ->paginate(10);
-        } else if($userRole === 'buyer'){
-            $orders = QueryBuilder::for(Order::class)
-                ->allowedFilters(['status'])
-                ->allowedSorts(['id', 'user_id', 'product_id', 'quantity', 'price', 'order_date', 'status', 'created_at', 'updated_at'])
-                ->where('user_id', $userId)
-                ->defaultSort('id')
-                ->paginate(10);
-        } else{
-            $orders = QueryBuilder::for(Order::class)
-                ->allowedFilters(['status'])
-                ->allowedSorts(['id', 'user_id', 'product_id', 'quantity', 'price', 'order_date', 'status', 'created_at', 'updated_at'])
-                ->where('seller_id', $userId)
-                ->defaultSort('id')
-                ->paginate(10);
+            $orders = $query->paginate(10);
+        } else if ($userRole === 'buyer') {
+            $orders = $query->where('user_id', $userId)->paginate(10);
+        } else {
+            $orders = $query->where('seller_id', $userId)->paginate(10);
         }
+
+        // Transform orders to include product and seller names
+        $orders->getCollection()->transform(function ($order) {
+            return [
+                'product_name' => $order->product->name ?? null,
+                'seller_name' => $order->product->seller->first_name ?? null,
+                'quantity' => $order->quantity,
+                'price' => $order->price,
+                'order_date' => $order->order_date,
+                'status' => $order->status,
+                'created_at' => $order->created_at,
+                'updated_at' => $order->updated_at,
+            ];
+        });
 
         return response()->json(['success' => true, 'data' => $orders]);
     }
@@ -62,6 +68,7 @@ class OrderController extends Controller
         $order = Order::create([
             'user_id' => $userId,
             'product_id' => $request->input('product_id'),
+            'seller_id' => $product->seller_id,
             'quantity' => $request->input('quantity'),
             'price' => $totalPrice,
             'order_date' => $request->input('order_date'),

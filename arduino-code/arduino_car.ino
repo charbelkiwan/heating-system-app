@@ -57,30 +57,30 @@ void loop()
 
 void startCarForward()
 {
-  digitalWrite(MOTOR1_PIN1, HIGH);
-  digitalWrite(MOTOR1_PIN2, LOW);
-  digitalWrite(MOTOR2_PIN1, HIGH);
-  digitalWrite(MOTOR2_PIN2, LOW);
+  analogWrite(MOTOR1_PIN1, 130); // Set low PWM value
+  analogWrite(MOTOR1_PIN2, 0);
+  analogWrite(MOTOR2_PIN1, 130); // Set low PWM value
+  analogWrite(MOTOR2_PIN2, 0);
 
   digitalWrite(RED_LED1_PIN, LOW); // Turn off red LEDs
 }
 
 void startCarBackward()
 {
-  digitalWrite(MOTOR1_PIN1, LOW);
-  digitalWrite(MOTOR1_PIN2, HIGH);
-  digitalWrite(MOTOR2_PIN1, LOW);
-  digitalWrite(MOTOR2_PIN2, HIGH);
+  analogWrite(MOTOR1_PIN1, 0);
+  analogWrite(MOTOR1_PIN2, 130); // Set low PWM value
+  analogWrite(MOTOR2_PIN1, 0);
+  analogWrite(MOTOR2_PIN2, 130); // Set low PWM value
 
   digitalWrite(RED_LED1_PIN, LOW); // Turn off red LEDs
 }
 
 void stopTheCar()
 {
-  digitalWrite(MOTOR1_PIN1, LOW);
-  digitalWrite(MOTOR1_PIN2, LOW);
-  digitalWrite(MOTOR2_PIN1, LOW);
-  digitalWrite(MOTOR2_PIN2, LOW);
+  analogWrite(MOTOR1_PIN1, 0);
+  analogWrite(MOTOR1_PIN2, 0);
+  analogWrite(MOTOR2_PIN1, 0);
+  analogWrite(MOTOR2_PIN2, 0);
 
   digitalWrite(RED_LED1_PIN, HIGH); // Turn on red LEDs
 }
